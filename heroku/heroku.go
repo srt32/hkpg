@@ -9,6 +9,42 @@ import (
 	"sort"
 )
 
+// Client allows for http calls to Heroku
+type Client struct {
+	HTTP *http.Client
+}
+
+func (c *Client) Do(req *http.Request) (*http.Response, error) {
+	httpClient := c.HTTP
+	if httpClient == nil {
+		httpClient = http.DefaultClient
+	}
+
+	res, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (c *Client) NewRequest(method, path string) (*http.Request, error) {
+	var herokuAuthToken = os.Getenv("HEROKU_AUTH_TOKEN")
+	if herokuAuthToken == "" {
+		log.Fatalf("HEROKU_AUTH_TOKEN must be set")
+	}
+
+	const apiURL = "https://postgres-api.heroku.com"
+
+	req, err := http.NewRequest(method, apiURL+path, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.Header.Add("Accept", "application/json")
+	req.SetBasicAuth("", herokuAuthToken)
+	return req, nil
+}
+
 // example:
 // [{
 //   "uuid":""
@@ -66,24 +102,17 @@ type PublicUrl struct {
 // {"expires_at":"2017-08-31 23:51:02 +0000","url":""}
 
 func GetTransfers(appName string) Transfer {
-	var herokuAuthToken = os.Getenv("HEROKU_AUTH_TOKEN")
-	if herokuAuthToken == "" {
-		log.Fatalf("HEROKU_AUTH_TOKEN must be set")
-	}
-
-	var transfersUrl = fmt.Sprintf(
-		"https://postgres-api.heroku.com/client/v11/apps/%s/transfers",
+	var transfersPath = fmt.Sprintf(
+		"/client/v11/apps/%s/transfers",
 		appName,
 	)
 
-	client := &http.Client{}
-	req, err := http.NewRequest("GET", transfersUrl, nil)
+	client := Client{}
+	req, err := client.NewRequest("GET", transfersPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	req.Header.Add("Accept", "application/json")
-	req.SetBasicAuth("", herokuAuthToken)
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
@@ -115,26 +144,18 @@ func GetTransfers(appName string) Transfer {
 }
 
 func GetPublicUrl(t Transfer, herokuAppName string) PublicUrl {
-	// TODO: dedup me into a client
-	var herokuAuthToken = os.Getenv("HEROKU_AUTH_TOKEN")
-	if herokuAuthToken == "" {
-		log.Fatalf("HEROKU_AUTH_TOKEN must be set")
-	}
-
-	var publicUrlUrl = fmt.Sprintf(
-		"https://postgres-api.heroku.com/client/v11/apps/%s/transfers/%d/actions/public-url",
+	var publicUrlPath = fmt.Sprintf(
+		"/client/v11/apps/%s/transfers/%d/actions/public-url",
 		herokuAppName,
 		t.Num,
 	)
 
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", publicUrlUrl, nil)
+	client := Client{}
+	req, err := client.NewRequest("POST", publicUrlPath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	req.Header.Add("Accept", "application/json")
-	req.SetBasicAuth("", herokuAuthToken)
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
@@ -148,7 +169,7 @@ func GetPublicUrl(t Transfer, herokuAppName string) PublicUrl {
 		log.Fatal(err)
 	}
 	if resp.StatusCode != 200 {
-		log.Fatalf(fmt.Sprintf("transfers call failed with %v", resp.StatusCode))
+		log.Fatalf(fmt.Sprintf("public url call failed with %v", resp.StatusCode))
 	}
 
 	return publicUrl

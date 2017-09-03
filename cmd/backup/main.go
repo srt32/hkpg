@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/srt32/hkpg"
+	"github.com/srt32/hkpg/download"
+	"github.com/srt32/hkpg/heroku"
 )
 
 func main() {
@@ -14,14 +16,20 @@ func main() {
 	}
 
 	var newestTransfer = heroku.GetTransfers(herokuAppName)
-	log.Printf("Success! %v", newestTransfer)
-
 	var publicUrl = heroku.GetPublicUrl(newestTransfer, herokuAppName)
 	log.Printf("Success! %v", publicUrl)
 
-	os.Exit(0)
+	file, err := download.DownloadUrl(publicUrl.Url)
+	if err != nil {
+		log.Fatalf("download failed, %v", err)
+	}
+	log.Printf("Success! %v", file)
 
-	// - download it
-	// - upload it to s3
-	// https://github.com/aws/aws-sdk-go/tree/master/service/s3
+	uploadedFileUrl, err := hkpg.Upload(file, "upload-file-name-foo")
+	if err != nil {
+		log.Fatalf("upload failed, %v", err)
+	}
+	log.Printf("Success! %v", uploadedFileUrl)
+
+	os.Exit(0)
 }
