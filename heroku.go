@@ -57,10 +57,13 @@ func (t TransfersList) Less(i, j int) bool {
 	return t[i].CreatedAt < t[j].CreatedAt
 }
 
+type PublicUrl struct {
+	ExpiresAt string `json:"expires_at"`
+	Url       string
+}
+
 // example: PublicUrl
 // {"expires_at":"2017-08-31 23:51:02 +0000","url":""}
-// type transfer_struct struct {
-// }
 
 func GetTransfers(appName string) Transfer {
 	var herokuAuthToken = os.Getenv("HEROKU_AUTH_TOKEN")
@@ -75,6 +78,10 @@ func GetTransfers(appName string) Transfer {
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", transfersUrl, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	req.Header.Add("Accept", "application/json")
 	req.SetBasicAuth("", herokuAuthToken)
 	resp, err := client.Do(req)
@@ -105,4 +112,44 @@ func GetTransfers(appName string) Transfer {
 	sort.Sort(TransfersList(completedValidTransfers))
 
 	return completedValidTransfers[len(completedValidTransfers)-1]
+}
+
+func GetPublicUrl(t Transfer, herokuAppName string) PublicUrl {
+	// TODO: dedup me into a client
+	var herokuAuthToken = os.Getenv("HEROKU_AUTH_TOKEN")
+	if herokuAuthToken == "" {
+		log.Fatalf("HEROKU_AUTH_TOKEN must be set")
+	}
+
+	var publicUrlUrl = fmt.Sprintf(
+		"https://postgres-api.heroku.com/client/v11/apps/%s/transfers/%d/actions/public-url",
+		herokuAppName,
+		t.Num,
+	)
+
+	client := &http.Client{}
+	req, err := http.NewRequest("POST", publicUrlUrl, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.Header.Add("Accept", "application/json")
+	req.SetBasicAuth("", herokuAuthToken)
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	decoder := json.NewDecoder(resp.Body)
+	defer resp.Body.Close()
+	publicUrl := PublicUrl{}
+	err = decoder.Decode(&publicUrl)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.StatusCode != 200 {
+		log.Fatalf(fmt.Sprintf("transfers call failed with %v", resp.StatusCode))
+	}
+
+	return publicUrl
 }

@@ -15,10 +15,11 @@ func main() {
 
 	var newestTransfer = heroku.GetTransfers(herokuAppName)
 	log.Printf("Success! %v", newestTransfer)
-	os.Exit(0)
 
-	// 2. POST /client/v11/apps/{herokuAppName}/transfers/{highest_num}/actions/public-url
-	// pluck out `url` field
+	var publicUrl = heroku.GetPublicUrl(newestTransfer, herokuAppName)
+	log.Printf("Success! %v", publicUrl)
+
+	os.Exit(0)
 
 	// - download it
 	// - upload it to s3
