@@ -1,7 +1,12 @@
 # hkpg
 ### Automated archiving of Heroku Postgres backups written in Go
 
-Inspired by https://github.com/kbaum/heroku-database-backups
+This package contains a single command that can be run manually or via the
+Heroku Scheduler to pull down the most recent Heroku Postgres backup from
+another Heroku application and upload it to a specified S3 Bucket.
+
+This work is inspired by [similar
+work](https://github.com/kbaum/heroku-database-backups) done via bash.
 
 ## Environment Variables
 
