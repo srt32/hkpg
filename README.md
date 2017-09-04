@@ -1,12 +1,7 @@
 # hkpg
-
-Automated archiving of Heroku Postgres backups written in Go
+### Automated archiving of Heroku Postgres backups written in Go
 
 Inspired by https://github.com/kbaum/heroku-database-backups
-
-Deploy with ideas in https://stackoverflow.com/a/43265218/1949363
-
-Manage deps / deploys with: https://devcenter.heroku.com/articles/deploying-go
 
 TODO:
 * wrap log statements in HKPG_DEBUG check
@@ -15,15 +10,18 @@ TODO:
 
 ## Environment Variables
 
-HEROKU_AUTH_TOKEN=""
-HEROKU_APP_NAME=""
-AWS_ACCESS_KEY_ID=""
-AWS_SECRET_KEY=""
-S3_BUCKET_NAME="" (optional, defaults to us-west-1)
+The below environment variables are required unless otherwise specified:
+
+* HEROKU_AUTH_TOKEN="copy-from-heroku-dashboard"
+* HEROKU_APP_NAME="my-app-name"
+* AWS_ACCESS_KEY_ID="key-id"
+* AWS_SECRET_KEY="secret-id"
+* S3_BUCKET_NAME="your-bucket-name"
+* AWS_REGION="us-east-1" (optional, defaults to us-west-1)
 
 ## Configuring Heroku Scheduler
 
-TODO
+Setup Heroku Scheduler to run `bin/backup`.
 
 ## Configuring S3 bucket permissions
 
