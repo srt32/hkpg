@@ -17,20 +17,26 @@ func main() {
 
 	var newestTransfer = heroku.GetTransfers(herokuAppName)
 	var publicUrl = heroku.GetPublicUrl(newestTransfer, herokuAppName)
-	log.Printf("Success! %v", publicUrl)
+	log.Printf("Archive URL fetch successful! %v", publicUrl)
 
 	file, err := download.DownloadUrl(publicUrl.Url, &newestTransfer)
 	defer file.Close()
 	if err != nil {
 		log.Fatalf("download failed, %v", err)
 	}
-	log.Printf("Success! %v", file)
+	log.Printf("Download successful! %v", file)
 
-	uploadedFileUrl, err := hkpg.Upload(file, "upload-file-name-foo")
+	uploadedETag, err := hkpg.Upload(file)
 	if err != nil {
 		log.Fatalf("upload failed, %v", err)
 	}
-	log.Printf("Success! %v", uploadedFileUrl)
+
+	err = os.Remove(file.Name())
+	if err != nil {
+		log.Fatalf("Upload successful but removal of local backup failed! %v", err)
+	}
+
+	log.Printf("Upload successful! %v", uploadedETag)
 
 	os.Exit(0)
 }

@@ -14,6 +14,7 @@ type Client struct {
 	HTTP *http.Client
 }
 
+// Do passes HTTP requests to the underlying client and executes them
 func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	httpClient := c.HTTP
 	if httpClient == nil {
@@ -27,6 +28,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	return res, nil
 }
 
+// NewRequest creates an HTTP request that should be passed to *Client.Do
 func (c *Client) NewRequest(method, path string) (*http.Request, error) {
 	var herokuAuthToken = os.Getenv("HEROKU_AUTH_TOKEN")
 	if herokuAuthToken == "" {
@@ -44,32 +46,6 @@ func (c *Client) NewRequest(method, path string) (*http.Request, error) {
 	req.SetBasicAuth("", herokuAuthToken)
 	return req, nil
 }
-
-// example:
-// [{
-//   "uuid":""
-//   "num":838,
-//   "from_name":"DATABASE",
-//   "from_type":"pg_dump",
-//   "from_url":"",
-//   "to_name":"SCHEDULED BACKUP",
-//   "to_type":"gof3r",
-//   "to_url":"",
-//   "options":{},
-//   "source_bytes":41722568876,
-//   "processed_bytes":6954926696,
-//   "succeeded":true,
-//   "warnings":0,
-//   "created_at":"2017-08-31 10:28:08 +0000",
-//   "started_at":"2017-08-31 10:29:21 +0000",
-//   "canceled_at":null,
-//   "updated_at":"2017-08-31 10:47:04 +0000",
-//   "finished_at":"2017-08-31 10:46:59 +0000",
-//   "deleted_at":null,
-//   "purged_at":null,
-//   "num_keep":5,
-//   "schedule":{"uuid":""}
-// }]
 
 type Transfer struct {
 	FinishedAt string `json:"finished_at"`
@@ -98,9 +74,8 @@ type PublicUrl struct {
 	Url       string
 }
 
-// example: PublicUrl
-// {"expires_at":"2017-08-31 23:51:02 +0000","url":""}
-
+// GetTransfers takes a Heroku app name and returns the most recent successful
+// backup
 func GetTransfers(appName string) Transfer {
 	var transfersPath = fmt.Sprintf(
 		"/client/v11/apps/%s/transfers",
@@ -143,6 +118,8 @@ func GetTransfers(appName string) Transfer {
 	return completedValidTransfers[len(completedValidTransfers)-1]
 }
 
+// GetPublicUrl takes a Transfer and app name and returns the URL of a publicly
+// accessible signed URL for the most recent backup.
 func GetPublicUrl(t Transfer, herokuAppName string) PublicUrl {
 	var publicUrlPath = fmt.Sprintf(
 		"/client/v11/apps/%s/transfers/%d/actions/public-url",

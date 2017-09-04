@@ -13,16 +13,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-// TODO: drop the fileName?
-func Upload(file *os.File, fileName string) (string, error) {
+// Upload accepts a *os.File, uploads it to the specified S3 buckets and
+// returns the ETag of the uploaded file. Upload can be called multiple times
+// with the same file name.
+func Upload(file *os.File) (string, error) {
 	creds := credentials.NewEnvCredentials()
 	_, err := creds.Get()
 	if err != nil {
 		log.Fatalf("bad credentials: %s", err)
 	}
 
-	// TODO: accept region as arg
-	cfg := aws.NewConfig().WithRegion("us-west-1").WithCredentials(creds)
+	var awsRegion = os.Getenv("AWS_REGION")
+	if awsRegion == "" {
+		awsRegion = "us-west-1"
+	}
+
+	cfg := aws.NewConfig().WithRegion(awsRegion).WithCredentials(creds)
 
 	svc := s3.New(session.New(), cfg)
 
