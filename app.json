@@ -1,0 +1,6 @@
+{
+  "name": "hkpg",
+  "description": "Automated Archiving of Heroku Postgres Backups Written in Go",
+  "repository": "https://github.com/srt32/hkpg",
+  "keywords": ["heroku", "golang", "postgres", "backups"]
+}
