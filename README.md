@@ -3,11 +3,6 @@
 
 Inspired by https://github.com/kbaum/heroku-database-backups
 
-TODO:
-* wrap log statements in HKPG_DEBUG check
-* add a license
-* add tests around core behavior
-
 ## Environment Variables
 
 The below environment variables are required unless otherwise specified:
