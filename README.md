@@ -8,6 +8,14 @@ another Heroku application and upload it to a specified S3 Bucket.
 This work is inspired by [similar
 work](https://github.com/kbaum/heroku-database-backups) done via bash.
 
+## Configuring Heroku
+
+* Create a new application on Heroku via `heroku create`
+* Clone the repo via `git clone git@github.com:srt32/hkpg.git`
+* Deploy the repo via `git push heroku master`
+* Set up environment variables as described below
+* Setup Heroku Scheduler to run `bin/backup` on whichever interval you choose
+
 ## Environment Variables
 
 The below environment variables are required unless otherwise specified:
@@ -19,11 +27,7 @@ The below environment variables are required unless otherwise specified:
 * AWS_SECRET_KEY="secret-id"
 * AWS_REGION="us-east-1" (optional, defaults to us-west-1)
 
-## Configuring Heroku Scheduler
-
-Setup Heroku Scheduler to run `bin/backup`.
-
-## Configuring S3 bucket permissions
+## Configuring S3 Bucket Permissions
 
 You will need an IAM user with "s3:PutObject" and "s3:PutObjectAcl" permissions
 on the root:
