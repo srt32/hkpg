@@ -10,9 +10,9 @@ import (
 )
 
 func main() {
-	var herokuAppName = os.Getenv("HEROKU_APP_NAME")
+	var herokuAppName = os.Getenv("HKPG_HEROKU_APP_NAME")
 	if herokuAppName == "" {
-		log.Fatalf("HEROKU_APP_NAME must be set")
+		log.Fatalf("HKPG_HEROKU_APP_NAME must be set")
 	}
 
 	var newestTransfer = heroku.GetTransfers(herokuAppName)

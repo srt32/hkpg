@@ -12,11 +12,11 @@ TODO:
 
 The below environment variables are required unless otherwise specified:
 
-* HEROKU_AUTH_TOKEN="copy-from-heroku-dashboard"
-* HEROKU_APP_NAME="my-app-name"
+* HKPG_HEROKU_AUTH_TOKEN="copy-from-heroku-dashboard"
+* HKPG_HEROKU_APP_NAME="my-app-name"
+* S3_BUCKET_NAME="your-bucket-name"
 * AWS_ACCESS_KEY_ID="key-id"
 * AWS_SECRET_KEY="secret-id"
-* S3_BUCKET_NAME="your-bucket-name"
 * AWS_REGION="us-east-1" (optional, defaults to us-west-1)
 
 ## Configuring Heroku Scheduler

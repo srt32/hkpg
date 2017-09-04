@@ -30,9 +30,9 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 
 // NewRequest creates an HTTP request that should be passed to *Client.Do
 func (c *Client) NewRequest(method, path string) (*http.Request, error) {
-	var herokuAuthToken = os.Getenv("HEROKU_AUTH_TOKEN")
+	var herokuAuthToken = os.Getenv("HKPG_HEROKU_AUTH_TOKEN")
 	if herokuAuthToken == "" {
-		log.Fatalf("HEROKU_AUTH_TOKEN must be set")
+		log.Fatalf("HKPG_HEROKU_AUTH_TOKEN must be set")
 	}
 
 	const apiURL = "https://postgres-api.heroku.com"
