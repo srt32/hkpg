@@ -19,7 +19,8 @@ func main() {
 	var publicUrl = heroku.GetPublicUrl(newestTransfer, herokuAppName)
 	log.Printf("Success! %v", publicUrl)
 
-	file, err := download.DownloadUrl(publicUrl.Url)
+	file, err := download.DownloadUrl(publicUrl.Url, &newestTransfer)
+	defer file.Close()
 	if err != nil {
 		log.Fatalf("download failed, %v", err)
 	}
