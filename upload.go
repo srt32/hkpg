@@ -17,6 +17,11 @@ import (
 // returns the ETag of the uploaded file. Upload can be called multiple times
 // with the same file name.
 func Upload(file *os.File) (string, error) {
+	var bucketName = os.Getenv("S3_BUCKET_NAME")
+	if bucketName == "" {
+		log.Fatalf("S3_BUCKET_NAME must be set")
+	}
+
 	creds := credentials.NewEnvCredentials()
 	_, err := creds.Get()
 	if err != nil {
@@ -29,7 +34,6 @@ func Upload(file *os.File) (string, error) {
 	}
 
 	cfg := aws.NewConfig().WithRegion(awsRegion).WithCredentials(creds)
-
 	svc := s3.New(session.New(), cfg)
 
 	fileInfo, err := file.Stat()
@@ -37,23 +41,20 @@ func Upload(file *os.File) (string, error) {
 		log.Fatalf("%v", err)
 	}
 
-	var size int64 = fileInfo.Size()
-	buffer := make([]byte, size)
-	file.Read(buffer)
-	fileBytes := bytes.NewReader(buffer)
-	fileType := http.DetectContentType(buffer)
-
-	var bucketName = os.Getenv("S3_BUCKET_NAME")
-	if bucketName == "" {
-		log.Fatalf("S3_BUCKET_NAME must be set")
+	buffer := new(bytes.Buffer)
+	file.Seek(0, 0)
+	_, err = buffer.ReadFrom(file)
+	if err != nil {
+		log.Fatalf("file read failed: %v", err)
 	}
-	path := file.Name()
+	fileBytes := bytes.NewReader(buffer.Bytes())
+	fileType := http.DetectContentType(buffer.Bytes())
 
 	params := &s3.PutObjectInput{
 		Bucket:        aws.String(bucketName),
-		Key:           aws.String(path),
+		Key:           aws.String(file.Name()),
 		Body:          fileBytes,
-		ContentLength: aws.Int64(size),
+		ContentLength: aws.Int64(fileInfo.Size()),
 		ContentType:   aws.String(fileType),
 	}
 
