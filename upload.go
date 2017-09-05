@@ -34,7 +34,11 @@ func Upload(file *os.File) (string, error) {
 	}
 
 	cfg := aws.NewConfig().WithRegion(awsRegion).WithCredentials(creds)
-	svc := s3.New(session.New(), cfg)
+	sesh, err := session.NewSession()
+	if err != nil {
+		log.Fatalf("failed to create AWS session: %v", err)
+	}
+	svc := s3.New(sesh, cfg)
 
 	fileInfo, err := file.Stat()
 	if err != nil {
