@@ -95,13 +95,14 @@ func GetTransfers(appName string) Transfer {
 
 	decoder := json.NewDecoder(resp.Body)
 	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		log.Fatalf(fmt.Sprintf("transfers call failed with %v", resp.StatusCode))
+	}
+
 	var transfers = make([]Transfer, 0)
 	err = decoder.Decode(&transfers)
 	if err != nil {
 		log.Fatal(err)
-	}
-	if resp.StatusCode != 200 {
-		log.Fatalf(fmt.Sprintf("transfers call failed with %v", resp.StatusCode))
 	}
 
 	completedValidTransfers := make([]Transfer, 0)
