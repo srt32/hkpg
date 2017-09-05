@@ -42,7 +42,10 @@ func Upload(file *os.File) (string, error) {
 	}
 
 	buffer := new(bytes.Buffer)
-	file.Seek(0, 0)
+	_, err = file.Seek(0, 0)
+	if err != nil {
+		log.Fatalf("failed to seek file: %v", err)
+	}
 	_, err = buffer.ReadFrom(file)
 	if err != nil {
 		log.Fatalf("file read failed: %v", err)
