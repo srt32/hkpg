@@ -1,16 +1,13 @@
 package hkpg
 
 import (
-	"bytes"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awsutil"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
 // Upload accepts a *os.File, uploads it to the specified S3 buckets and
@@ -34,42 +31,21 @@ func Upload(file *os.File) (string, error) {
 	}
 
 	cfg := aws.NewConfig().WithRegion(awsRegion).WithCredentials(creds)
-	sesh, err := session.NewSession()
-	if err != nil {
-		log.Fatalf("failed to create AWS session: %v", err)
-	}
-	svc := s3.New(sesh, cfg)
+	sesh := session.Must(session.NewSession(cfg))
+	uploader := s3manager.NewUploader(sesh, func(u *s3manager.Uploader) {
+		u.PartSize = 64 * 1024 * 1024 // 64MB per part
+	})
 
-	fileInfo, err := file.Stat()
+	uploadInput := &s3manager.UploadInput{
+		Bucket: &bucketName,
+		Key:    aws.String(file.Name()),
+		Body:   file,
+	}
+
+	result, err := uploader.Upload(uploadInput)
 	if err != nil {
 		log.Fatalf("%v", err)
 	}
 
-	buffer := new(bytes.Buffer)
-	_, err = file.Seek(0, 0)
-	if err != nil {
-		log.Fatalf("failed to seek file: %v", err)
-	}
-	_, err = buffer.ReadFrom(file)
-	if err != nil {
-		log.Fatalf("file read failed: %v", err)
-	}
-	fileBytes := bytes.NewReader(buffer.Bytes())
-	fileType := http.DetectContentType(buffer.Bytes())
-
-	params := &s3.PutObjectInput{
-		Bucket:        aws.String(bucketName),
-		Key:           aws.String(file.Name()),
-		Body:          fileBytes,
-		ContentLength: aws.Int64(fileInfo.Size()),
-		ContentType:   aws.String(fileType),
-	}
-
-	resp, err := svc.PutObject(params)
-	if err != nil {
-		log.Fatalf("bad response: %s", err)
-	}
-
-	var etag = awsutil.StringValue(resp)
-	return etag, nil
+	return result.Location, nil
 }

@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/srt32/hkpg",
-	"GoVersion": "go1.7",
+	"GoVersion": "go1.8",
 	"GodepVersion": "v79",
 	"Packages": [
 		"./..."
@@ -123,6 +123,16 @@
 		},
 		{
 			"ImportPath": "github.com/aws/aws-sdk-go/service/s3",
+			"Comment": "v1.10.37-1-g8d9e3039",
+			"Rev": "8d9e3039553a1f8ca137750a6eeed5fb5d62d7e6"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/s3/s3iface",
+			"Comment": "v1.10.37-1-g8d9e3039",
+			"Rev": "8d9e3039553a1f8ca137750a6eeed5fb5d62d7e6"
+		},
+		{
+			"ImportPath": "github.com/aws/aws-sdk-go/service/s3/s3manager",
 			"Comment": "v1.10.37-1-g8d9e3039",
 			"Rev": "8d9e3039553a1f8ca137750a6eeed5fb5d62d7e6"
 		},
