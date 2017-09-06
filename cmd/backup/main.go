@@ -26,7 +26,7 @@ func main() {
 	}
 	log.Printf("Download successful! %v", file)
 
-	uploadedETag, err := hkpg.Upload(file)
+	uploadedLocation, err := hkpg.Upload(file)
 	if err != nil {
 		log.Fatalf("upload failed, %v", err)
 	}
@@ -36,7 +36,7 @@ func main() {
 		log.Fatalf("Upload successful but removal of local backup failed! %v", err)
 	}
 
-	log.Printf("Upload successful! %v", uploadedETag)
+	log.Printf("Upload successful! %v", uploadedLocation)
 
 	os.Exit(0)
 }
