@@ -19,10 +19,10 @@ func DownloadUrl(url string, transfer *heroku.Transfer) (*os.File, error) {
 	}
 
 	resp, err := http.Get(url)
-	defer resp.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	n, err := io.Copy(out, resp.Body)
 	if err != nil {
